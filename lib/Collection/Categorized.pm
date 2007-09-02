@@ -9,7 +9,7 @@ __PACKAGE__->mk_accessors(qw/_sorter _data/);
 
 =head1 NAME
 
-Collection::Categorized - categorize and organize lists
+Collection::Categorized - categorize and organize a collection of data
 
 =head1 SYNOPSIS
 
