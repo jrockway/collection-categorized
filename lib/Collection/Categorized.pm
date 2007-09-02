@@ -4,6 +4,8 @@ use warnings;
 use Carp;
 use Sub::AliasedUnderscore qw/transform/;
 
+our $VERSION = '0.01';
+
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw/_sorter _data/);
 
