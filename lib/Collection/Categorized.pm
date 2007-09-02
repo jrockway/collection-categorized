@@ -2,9 +2,10 @@ package Collection::Categorized;
 use strict;
 use warnings;
 use Carp;
-
 use Sub::AliasedUnderscore qw/transform/;
-use Class::Accessor qw/_sorter _data/;
+
+use base 'Class::Accessor::Fast';
+__PACKAGE__->mk_accessors(qw/_sorter _data/);
 
 =head1 NAME
 
@@ -109,5 +110,77 @@ sub categories {
     my $self = shift;
     return keys %{$self->{_data}};
 }
+
+=head2 add($object)
+
+Add an object to the collection.
+
+=cut
+
+
+sub add {
+    my ($self, @objects) = @_;
+    foreach (@objects) {
+        my $class = $self->_sorter->($_);
+        $self->_data->{$class} ||= [];
+        push @{$self->_data->{$class}}, $_;
+    }
+    return;
+}
+
+=head2 get($type)
+
+Gets all elements of a certain type
+
+=cut
+
+sub get {
+    my ($self, $type) = @_;
+    return @{$self->_data->{$type}||[]};
+}
+
+=head2 all
+
+Get every element added to the collection
+
+=cut
+
+sub all {
+    my $self = shift;
+    return map { $self->get($_) } $self->categories;
+}
+
+=head2 edit(sub { change @_ })
+
+Given a a subref, apply it to every type and change the members of the
+type to be the return value of the sub.
+
+Example:
+
+   # Input: ( category => data )
+   #   { foo => [ 1 2 3 ],
+   #     bar => [ 3 2 1 ],
+   #   }
+
+  $collection->edit( sub { reverse @_ } );
+
+   # Output:
+   #   { foo => [ 3 2 1 ],
+   #     bar => [ 1 2 3 ],
+   #   }
+
+
+=cut
+
+sub edit {
+    my ($self, $editor) = @_;
+    foreach my $type ($self->types) {
+        my @members = $self->get($type);
+        my @changed = $editor->(@members);
+        $self->_data->{$type} = \@changed;
+    }
+    return;
+}
+
 
 1;
