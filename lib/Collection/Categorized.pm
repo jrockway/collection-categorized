@@ -174,7 +174,7 @@ Example:
 
 sub edit {
     my ($self, $editor) = @_;
-    foreach my $type ($self->types) {
+    foreach my $type ($self->categories) {
         my @members = $self->get($type);
         my @changed = $editor->(@members);
         $self->_data->{$type} = \@changed;
