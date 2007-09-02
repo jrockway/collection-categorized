@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 10;
 
 use Collection::Categorized;
 
@@ -32,3 +32,7 @@ is_deeply [sort @categories], [sort qw/+ =/];
 $cc->add(-1);
 @categories = $cc->categories;
 is_deeply [sort @categories], [sort qw/+ = -/];
+
+is_deeply [$cc->get('+')], [1,2];
+is_deeply [$cc->get('=')], [0];
+is_deeply [$cc->get('-')], [-1];
