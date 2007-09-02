@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 use Collection::Categorized;
 
@@ -41,3 +41,5 @@ $cc->edit(sub { map { $_ * 2 } @_ });
 is_deeply [$cc->get('+')], [2,4];
 is_deeply [$cc->get('=')], [0];
 is_deeply [$cc->get('-')], [-2];
+
+is_deeply [sort $cc->all], [-2, 0, 2, 4], 'everything there';
