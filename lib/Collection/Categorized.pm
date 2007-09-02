@@ -143,7 +143,7 @@ sub get {
 
 =head2 all
 
-Get every element added to the collection
+Get every element in the collection
 
 =cut
 
@@ -184,5 +184,19 @@ sub edit {
     return;
 }
 
+=head1 AUTHOR
+
+Jonathan Rockway C<< jrockway AT cpan.org >>
+Jeremy Wall C<< zaphar AT cpan.org >>
+
+We wrote this for work.  Now you can have it too.
+
+=head1 COPYRIGHT
+
+This module is probably copyright (c) 2007 by Doubleclick Performics.
+Despite the weird name of the copyright holder, you can use, modify,
+and redistribute this module under the same terms as Perl itself.
+
+=cut
 
 1;
