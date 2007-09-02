@@ -13,9 +13,11 @@ Collection::Categorized - categorize and organize lists
 
 =head1 SYNOPSIS
 
+  use Collection::Categorized;
+
   # create a collection where elements are categorized by
   # the class they are in
-  my $cc = ::Categorized->new( sub { ref $_ } );
+  my $cc = Collection::Categorized->new( sub { ref $_ } );
 
   # add some data
   $foo->{awesomeness} = 42;
@@ -32,7 +34,7 @@ Collection::Categorized - categorize and organize lists
   my @HOOO = $cc->get('HOOO'); # undef
 
   # grep the data
-  $cc->edit(sub { defined $_->{awesomeness} });
+  $cc->edit(sub { grep { defined $_->{awesomeness} } @_ });
   @foos = $cc->get('Foo'); # ($foo)
   @bars = $cc->get('Bar'); # ()
   @HOOO = $cc->get('HOOO'); # undef
