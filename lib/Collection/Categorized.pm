@@ -1,0 +1,113 @@
+package Collection::Categorized;
+use strict;
+use warnings;
+use Carp;
+
+use Sub::AliasedUnderscore qw/transform/;
+use Class::Accessor qw/_sorter _data/;
+
+=head1 NAME
+
+Collection::Categorized - categorize and organize lists
+
+=head1 SYNOPSIS
+
+  # create a collection where elements are categorized by
+  # the class they are in
+  my $cc = ::Categorized->new( sub { ref $_ } );
+
+  # add some data
+  $foo->{awesomeness} = 42;
+  $cc->add($foo); # $foo isa Foo
+  $cc->add($bar, $bar2); # $bars are Bars
+  $cc->add(@bazs); # @bazs are Bazs
+
+  # see what we have
+  my @c = $cc->categories; # (Foo, Bar, Baz) 
+
+  # get the data by category  
+  my @foos = $cc->get('Foo'); # ($foo)
+  my @bars = $cc->get('Bar'); # ($bar, $bar2)
+  my @HOOO = $cc->get('HOOO'); # undef
+
+  # grep the data
+  $cc->edit(sub { defined $_->{awesomeness} });
+  @foos = $cc->get('Foo'); # ($foo)
+  @bars = $cc->get('Bar'); # ()
+  @HOOO = $cc->get('HOOO'); # undef
+
+=head1 DESCRIPTION
+
+The idea is that, given a list of junk, you want to find order in the
+chaos.  Write some categorizers (see below), dump your data in, and
+get it out in some sort of meaningful order.
+
+=head1 METHODS
+
+=head2 new($coderef)
+
+Create a categorized collection that categorizes its members
+by the return value of C<$coderef>.  Coderef is run with C<$_>
+aliased to the element to categorize.
+
+=head2 new([ category => $condition, ... ])
+
+Create a categorized collection that categorizes its members
+based on the passed category definition list.  Example:
+
+  new([ positive => sub { $_ <  0 },
+        zero     => sub { $_ == 0 },
+        negative => sub { $_ >  0 },
+      ]);
+
+This example creates three categories.  The conditions are run in
+order, and the first condition to match decides the category that
+element is in.  If an element doesn't match any of the three blocks
+(unlikely in this case), then it is silently discarded.  If you want
+some sort of fallback, just add a condition that always matches (like
+C<sub { 1 }>).
+
+Note that you're passing an arrayref, not a hashref, because we want
+to preserve order.
+
+=cut
+
+sub new {
+    my ($class, $ref) = @_;
+    my $self = {};
+    my $dispatch = 
+      { CODE  => sub { $self->{_sorter} = transform $ref },
+        ARRAY => sub {
+            my %lookup = @$ref;
+            $lookup{$_} = transform $lookup{$_} for keys %lookup;
+
+            # with that out of the way, setup the sorter
+            $self->{_sorter} = sub {
+                my $arg = shift;
+                foreach my $category (grep { !ref $_ } @$ref) {
+                    return $category if $lookup{$category}->($arg);
+                }
+            }
+        },
+      };
+    
+    my $action = $dispatch->{ref $ref};
+    croak 'pass an ARRAY or CODE reference only' unless $action;
+    $action->();
+    
+    $self->{_data} = {};
+    return bless $self => $class;
+}
+
+=head2 categories
+
+Returns a list of categories in use
+
+=cut
+
+sub categories {
+    my $self = shift;
+    return keys %{$self->{_data}};
+}
+
+1;
